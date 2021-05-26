@@ -4,6 +4,7 @@ import java.util.*;
 
 public class HashWithLimitSizeAndTime {
       ArrayList<Pair<Long, Pair<Integer, Integer>>> hash = new ArrayList<Pair<Long, Pair<Integer, Integer>>>();
+      OperationService operationService = new OperationService();
       int additionNumber;
       int limit;
       Date date = new Date();
@@ -32,7 +33,7 @@ public class HashWithLimitSizeAndTime {
 
       public boolean haveThisKey(int key) {
             for (int i = 0; i < limit; i++) {
-                  if ((date.getTime() - hash.get(i).getKey()) < 1000000000 && hash.get(i).getValue().getKey().equals(key)) {
+                  if ((date.getTime() - hash.get(i).getKey()) < 10000 && hash.get(i).getValue().getKey().equals(key)) {
                         return true;
                   }
             }
@@ -40,34 +41,29 @@ public class HashWithLimitSizeAndTime {
       }
 
       public int getValueFromKey(int key) {
-            int j =0;
-            for (int i = 0; i < limit; i++) {
-                  if (hash.get(i).getKey().equals(key)) {
-                        j=i;
-                        break;
+            if(haveThisKey(key)){
+                  System.out.println("Есть в хеше");
+                  for (int i = 0; i < limit; i++) {
+                        if (hash.get(i).getKey().equals(key)) {
+                              return hash.get(i).getValue().getValue();
+                        }
                   }
+            } else {
+                  addPair(key, operationService.performLongAndExpensiveOperation(key));
             }
-            return hash.get(j).getValue().getValue();
+            return -1;
       }
 
       public static void main(String[] args) {
             HashWithLimitSizeAndTime hashWithLimitSizeAndTime = new HashWithLimitSizeAndTime(3);
-            OperationService operationService = new OperationService();
-
             Random random = new Random();
             while (true) {
                   Thread thread = new Thread(new Runnable() {
                         @Override
                         public void run() {
                               int a = random.nextInt(10);
-                              if (!hashWithLimitSizeAndTime.haveThisKey(a)) {
-                                    System.out.println("Обращаемся к бд");
-                                    int val = operationService.performLongAndExpensiveOperation(a);
-                                    hashWithLimitSizeAndTime.addPair(a, val);
-                                    System.out.println(val);
-                              } else {
-                                    System.out.println("Значение уже есть в кэше " + hashWithLimitSizeAndTime.getValueFromKey(a));
-                              }
+                              System.out.println("Обращаемся для получения данных для ключа " + a);
+                              hashWithLimitSizeAndTime.getValueFromKey(a);
                         }
                   });
                   thread.start();

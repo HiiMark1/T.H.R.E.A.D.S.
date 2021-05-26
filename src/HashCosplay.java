@@ -3,14 +3,21 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class HashCosplay {
       ConcurrentHashMap<Integer, Integer> concurrentHashMap = new ConcurrentHashMap<>();
+      OperationService operationService = new OperationService();
+
 
       public void addPair(int key, int value){
             concurrentHashMap.put(key, value);
       }
 
       public int getValueFromKey(int key){
-            int val = concurrentHashMap.get(key);
-            return val;
+            if(haveThisKey(key)) {
+                  System.out.println("Значение уже есть в хеше");
+                  return concurrentHashMap.get(key);
+            } else {
+                  concurrentHashMap.put(key, key*key);
+                  return operationService.performLongAndExpensiveOperation(key);
+            }
       }
 
       public boolean haveThisKey(int key){
@@ -23,20 +30,13 @@ public class HashCosplay {
       public static void main(String[] args) {
             Random random = new Random();
             HashCosplay hashCosplay = new HashCosplay();
-            OperationService operationService = new OperationService();
             while(true){
                   Thread thread = new Thread(new Runnable() {
                         @Override
                         public void run() {
                               int a = random.nextInt(10);
-                              if(!hashCosplay.haveThisKey(a)){
-                                    System.out.println("Обращаемся к бд");
-                                    int val = operationService.performLongAndExpensiveOperation(a);
-                                    hashCosplay.addPair(a, val);
-                                    System.out.println(val);
-                              } else{
-                                    System.out.println("Значение уже есть в кэше " + hashCosplay.getValueFromKey(a));
-                              }
+                              System.out.println("Обращаемся для получения данных для ключа " + a);
+                              System.out.println(hashCosplay.getValueFromKey(a));
                         }
                   });
                   thread.start();

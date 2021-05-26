@@ -1,14 +1,14 @@
 public class OperationService {
-      Object lock = new Object();;
+      Object lock = new Object();
+      ;
 
-      int performLongAndExpensiveOperation(int value){
-            synchronized (lock){
-                  try {
-                        Thread.sleep(2500);
-                  } catch (InterruptedException e) {
-                        e.printStackTrace();
-                  }
-                  return value*value;
+      int performLongAndExpensiveOperation(int value) {
+            System.out.println("Обращаемся к бд...");
+            try {
+                  Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                  e.printStackTrace();
             }
+            return value * value;
       }
 }
